@@ -1,30 +1,51 @@
-client = anthropic.Anthropic()
+from pydantic import BaseModel
+from anthropic import Anthropic
+from typing import Literal
+
+
+client = Anthropic()
+
+#input model
+class EmailContent(BaseModel):
+    subject: str
+    body: str
+
+
+email = EmailContent(
+    subject="Group Meeting for Sprint 2",
+    body="Hi Jack, Are you okay to join a meeting this Saturday?"
+)
+
+#output model
+class EmailProperties(BaseModel):
+    urgency: Literal["Urgent", "High", "Normal"]
+    category: Literal["Job/Application", "Academic/University", "Team/GroupWork", "Meeting/Scheduling", "Newsletter/Spam"]
+    reasoning: str
+    draft_reply: str
+
 
 response = client.messages.create(
-    model="claude-opus-4-8",
+    model="claude-sonnet-4.6",
     max_tokens=1024,
+    system= "You are an email sorting assitant. Sort the email into the respective classes and return JSON only that matches the provided schema",
     messages=[
         {
-            "role" : "user",
-            "content" : ""
+            "role": "user",
+            "content": f"""Classify this email:
+Subject: {email.subject}
+
+Body:
+{email.body}
+"""
         }
     ],
-     output_config={
+
+    output_config={
         "format": {
             "type": "json_schema",
-            "schema": {
-                "type": "object",
-                "properties": {
-                    "name": {"type": "string"},
-                    "email": {"type": "string"},
-                    "urgency": {"type": "string"},
-                    "category": {"type": "string"},
-                    "reasoning": {"type": "string"},
-                    "draft_reply": {"type": "string"},
-                },
-                "required": ["name", "email", "urgency"]
-                },
+            "schema": EmailProperties.model_json_schema()
         }
-    },
+    }
 )
+
 print(response.content[0].text)
