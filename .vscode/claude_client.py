@@ -27,7 +27,7 @@ class EmailProperties(BaseModel):
     reasoning: str
     draft_reply: str
 
-def TriageEmail(subject: str, body: str):
+def triage_email(subject: str, body: str):
     response = client.messages.create(
         model="claude-sonnet-4.6",
          max_tokens=1024,
@@ -36,10 +36,10 @@ def TriageEmail(subject: str, body: str):
             {
                 "role": "user",
                 "content": f"""Classify this email:
-    Subject: {email.subject}
+    Subject: {subject}
 
     Body:
-    {email.body}
+    {body}
     """
             }
         ],

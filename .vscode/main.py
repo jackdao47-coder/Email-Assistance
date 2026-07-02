@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from claude_client import TriageEmail
+from claude_client import triage_email
 
 
 class EmailContent(BaseModel):
@@ -17,7 +17,7 @@ def root():
 
 @app.post("/triage")
 async def triage(email:EmailContent):
-    response = TriageEmail(email.subject, email.body)
+    response = triage_email(email.subject, email.body)
     return {
         response
     }
