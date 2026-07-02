@@ -27,29 +27,30 @@ class EmailProperties(BaseModel):
     reasoning: str
     draft_reply: str
 
+def TriageEmail(subject: str, body: str):
+    response = client.messages.create(
+        model="claude-sonnet-4.6",
+         max_tokens=1024,
+        system= "You are an email sorting assitant. Sort the email into the respective classes and return JSON only that matches the provided schema",
+        messages=[
+            {
+                "role": "user",
+                "content": f"""Classify this email:
+    Subject: {email.subject}
 
-response = client.messages.create(
-    model="claude-sonnet-4.6",
-    max_tokens=1024,
-    system= "You are an email sorting assitant. Sort the email into the respective classes and return JSON only that matches the provided schema",
-    messages=[
-        {
-            "role": "user",
-            "content": f"""Classify this email:
-Subject: {email.subject}
+    Body:
+    {email.body}
+    """
+            }
+        ],
 
-Body:
-{email.body}
-"""
+        output_config={
+            "format": {
+                "type": "json_schema",
+                "schema": EmailProperties.model_json_schema()
+            }
         }
-    ],
+    )   
 
-    output_config={
-        "format": {
-            "type": "json_schema",
-            "schema": EmailProperties.model_json_schema()
-        }
-    }
-)
-
-print(response.content[0].text)
+    print(response.content[0].text)
+    return response
