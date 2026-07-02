@@ -1,6 +1,10 @@
 from pydantic import BaseModel
 from anthropic import Anthropic
 from typing import Literal
+from dotenv import load_dotenv
+from pathlib import Path
+
+load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env")
 
 
 client = Anthropic()
